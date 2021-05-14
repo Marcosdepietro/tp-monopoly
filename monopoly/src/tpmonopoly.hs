@@ -8,9 +8,9 @@ data Persona= Persona {
     dinero :: Int,
     tactica :: String,
     propiedades :: [Propiedades],
-    acciones :: [String]
+    acciones :: [Accion]
 } deriving (Show)
-
+type Accion = Persona -> Persona
 type NombrePropiedad = String
 type PrecioPropiedad = Int
 type Propiedades =(NombrePropiedad,PrecioPropiedad)
@@ -24,7 +24,7 @@ accionARealizar :: String -> Persona -> Persona
 accionARealizar accion unaPersona = unaPersona {acciones = acciones unaPersona ++ [accion] } 
 
 carolina :: Persona 
-carolina = Persona "Carolina" 500 "Accionista" [] ["pasarPorElBanco","pagarAAccionistas"]
+carolina = Persona "Carolina" 500 "Accionista" [] [(sumarAccion) "pasarPorElBanco",(sumarAccion)"pagarAAccionistas"]
 
 manuel :: Persona
 manuel = Persona "Manuel" 500 "Oferente singular" [] ["pasarPorElBanco","enojarse"] 
