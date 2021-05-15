@@ -109,3 +109,6 @@ mansion = UnaPropiedad "Mansion" 550
 
 depto :: Propiedad
 depto = UnaPropiedad "Departamento con vista al rio" 150 
+
+choza :: Propiedad
+choza =  UnaPropiedad "Choza humilde" 100
