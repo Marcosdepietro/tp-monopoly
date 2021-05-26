@@ -39,10 +39,8 @@ enojarse :: Accion
 enojarse unaPersona = (sumarDinero 50).accionARealizar gritar $ unaPersona
 
 gritar :: Accion
-gritar unaPersona = unaPersona { nombre = agregarPrefijo ++ nombre unaPersona }
+gritar unaPersona = unaPersona { nombre = "AHHHH " ++ nombre unaPersona }
 
-agregarPrefijo :: String 
-agregarPrefijo = "AHHHH "
 
 ganarSubasta :: Persona -> Bool
 ganarSubasta unaPersona = (flip elem controlarTactica).tactica $ unaPersona
@@ -52,18 +50,16 @@ controlarTactica = ["Accionista", "Oferente singular"]
 
 subastar :: Propiedad -> Accion
 subastar unaPropiedad unaPersona
-    | ganarSubasta unaPersona = adquirirPropiedad unaPropiedad unaPersona
+    | ganarSubasta unaPersona && controlarFondos unaPropiedad unaPersona = adquirirPropiedad unaPropiedad unaPersona
     | otherwise = unaPersona
 
 
 adquirirPropiedad :: Propiedad -> Accion
-adquirirPropiedad unaPropiedad unaPersona = unaPersona {dinero = (dinero unaPersona) - (precioPropiedad unaPropiedad), propiedad = propiedad unaPersona ++[unaPropiedad]}
+adquirirPropiedad unaPropiedad unaPersona =  restarDinero (precioPropiedad unaPropiedad)  unaPersona  {propiedad = propiedad unaPersona ++[unaPropiedad]} 
 
 propiedadBarata :: Propiedad -> Bool
 propiedadBarata unaPropiedad = precioPropiedad unaPropiedad < 150
 
-propiedadCara :: Propiedad -> Bool
-propiedadCara unaPropiedad = not (precioPropiedad unaPropiedad < 150)
 
 valorDeAlquiler :: Propiedad -> Int
 valorDeAlquiler unaPropiedad
@@ -78,24 +74,27 @@ pagarAAccionistas unaPersona
     | tactica unaPersona == "Accionista" = sumarDinero 200 unaPersona
     | otherwise = restarDinero 100 unaPersona
 
-puedeComprarLaPropiedad :: Propiedad -> Persona -> Bool
-puedeComprarLaPropiedad unaPropiedad unaPersona = (dinero unaPersona) >= (precioPropiedad unaPropiedad) 
+controlarFondos :: Propiedad -> Persona -> Bool
+controlarFondos unaPropiedad unaPersona = dinero unaPersona >= precioPropiedad unaPropiedad
 
 hacerBerrinchePor :: Propiedad -> Accion
 hacerBerrinchePor unaPropiedad unPersona
-    | puedeComprarLaPropiedad unaPropiedad unPersona = adquirirPropiedad unaPropiedad unPersona
-    | otherwise = (hacerBerrinchePor unaPropiedad).(sumarDinero 10).accionARealizar gritar $ unPersona 
+    | controlarFondos unaPropiedad unPersona = adquirirPropiedad unaPropiedad unPersona
+    | otherwise = (hacerBerrinchePor $unaPropiedad).(sumarDinero 10). gritar $ unPersona 
 
 ultimaRonda :: Persona-> Accion
-ultimaRonda unaPersona= (foldr (.) id ).reverse.acciones $ unaPersona
+ultimaRonda unaPersona= (foldr (.) id ).acciones $ unaPersona
+
+definirGanador :: Persona -> Persona -> Persona
+definirGanador unaPersona otraPersona
+    | dinero unaPersona > dinero  otraPersona  =  unaPersona 
+    | otherwise =  otraPersona
 
 juegoFinal :: Persona -> Persona -> Persona
-juegoFinal persona1 persona2
-    | dinero (ultimaRonda persona1 $ persona1) > dinero (ultimaRonda persona2 $ persona2) = ultimaRonda persona1 $ persona1
-    | otherwise = ultimaRonda persona2 $ persona2
+juegoFinal unaPersona otraPersona = definirGanador (ultimaRonda unaPersona $ unaPersona) (ultimaRonda otraPersona $ otraPersona)
 
-dineroUltimaRonda :: Persona->Int
-dineroUltimaRonda unaPersona = dinero (ultimaRonda unaPersona $ unaPersona)
+
+{--Personas de prueba--}
 
 carolina :: Persona 
 carolina = Persona "Carolina" 500 "Accionista" [] [pasarPorElBanco, pagarAAccionistas]
@@ -109,3 +108,6 @@ mansion = UnaPropiedad "Mansion" 550
 
 depto :: Propiedad
 depto = UnaPropiedad "Departamento con vista al rio" 150 
+
+choza :: Propiedad
+choza =  UnaPropiedad "Choza humilde" 100
